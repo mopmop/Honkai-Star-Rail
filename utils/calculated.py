@@ -167,7 +167,7 @@ class calculated:
                     time.sleep(0.3)
                     return pos
                 if time.time() - start_time > overtime:
-                    log.info(_("识别超时")) if overtime != 0 else None
+                    log.info(_("识别超时 - ocr-click")) if overtime != 0 else None
                     return False
                 time.sleep(0.5)
 
@@ -303,6 +303,8 @@ class calculated:
             "map_3-4_point_1" : [(593, 500),(800, 700)],
             "map_3-4_point_2":[(593, 500),(593, 400)],
             "map_3-4_point_3" : [(593, 346),(400, 346)],
+            "map_3-5": _("丹鼎司"),
+            "map_3-6": _("鳞渊境"),
         }
         if temp_name in temp_ocr:
             log.info(temp_name)
@@ -320,6 +322,7 @@ class calculated:
                     result = True
                 else:
                     result = self.ocr_click(temp_ocr[temp_name])
+                    log.info(_(result))
                 while True:
                     if not result:
                         log.info(_("使用图片识别兜底"))
@@ -337,6 +340,7 @@ class calculated:
                             break
                     else:
                         result = self.scan_screenshot(target)
+                        print('here')
                         if result["max_val"] > threshold:
                             #points = self.calculated(result, target.shape)
                             self.Click(result["max_loc"])
@@ -383,7 +387,7 @@ class calculated:
             target = cv.imread(target_path)
             start_time = time.time()
             first_timeout = True
-            distance_iter = itertools.cycle([200, -200, -200])
+            distance_iter = itertools.cycle([400, -400, -400])
             level_iter = itertools.cycle([(3, 81), (3, 89), (3, 75)])
             while True:
                 result = self.scan_screenshot(target)
@@ -426,49 +430,31 @@ class calculated:
             if time.time() - start_time > 10:  # 如果已经识别了10秒还未找到目标图片，则退出循环
                 log.info(_("识别超时,此处可能漏怪!"))
                 return False
-                time.sleep(0.3)
-            if self.scan_screenshot(self.attack,pos=(3.75,5.5,11.6,23))["max_val"] > 0.97: #修改检测机制,精度更高
-                self.Click()
-                time.sleep(0.3)
-                doubt_time = time.time() + 8
-                log.info(_("监控疑问或警告"))
-                while time.time() < doubt_time:
-                    if self.scan_screenshot(self.doubt,pos=(3.75,5.5,11.6,23))["max_val"] > 0.95 or self.scan_screenshot(self.warn,pos=(3.75,5.5,11.6,23))["max_val"] > 0.95:
-                        log.info(_("识别到疑问或警告,等待怪物开战或反击"))
-                        self.Click()
-                        time.sleep(1.5)
-                        log.info(_("识别反击"))
-                    result = self.scan_screenshot(self.finish,pos=(0,95,100,100))
-                    if result["max_val"] < 0.95:
-                        break
-                    time.sleep(0.1)
+            
+            self.Click()
+            time.sleep(1)
+            doubt_time = time.time() + 7
+            log.info(_("监控疑问或警告! - 2"))
+            while time.time() < doubt_time:
+                if self.scan_screenshot(self.doubt,pos=(3.75,5.5,11.6,23))["max_val"] > 0.95 or self.scan_screenshot(self.warn,pos=(3.75,5.5,11.6,23))["max_val"] > 0.95:
+                    log.info(_("识别到疑问或警告,等待怪物开战或反击"))
+                    self.Click()
+                    time.sleep(1.5)
+                    log.info(_("识别反击"))
                 result = self.scan_screenshot(self.finish,pos=(0,95,100,100))
-                time.sleep(0.3)
                 if result["max_val"] < 0.95:
                     break
+                time.sleep(0.1)
+            result = self.scan_screenshot(self.finish,pos=(0,95,100,100))
+            log.info(_(result["max_val"]))
+            time.sleep(0.3)
+            if result["max_val"] > 0.95:
+                log.info(_("未发现敌人!"))  
             else:
-                self.Click()
-                time.sleep(0.3)
-                doubt_time = time.time() + 7
-                log.info(_("监控疑问或警告!"))
-                while time.time() < doubt_time:
-                    if self.scan_screenshot(self.doubt,pos=(3.75,5.5,11.6,23))["max_val"] > 0.95 or self.scan_screenshot(self.warn,pos=(3.75,5.5,11.6,23))["max_val"] > 0.95:
-                        log.info(_("识别到疑问或警告,等待怪物开战或反击"))
-                        self.Click()
-                        time.sleep(1.5)
-                        log.info(_("识别反击"))
-                    result = self.scan_screenshot(self.finish,pos=(0,95,100,100))
-                    if result["max_val"] < 0.95:
-                        break
-                    time.sleep(0.1)
-                result = self.scan_screenshot(self.finish,pos=(0,95,100,100))
-                time.sleep(0.3)
-                if result["max_val"] < 0.95:
-                    break
-                log.info(_("未发现敌人!"))    
-                return True
-            time.sleep(2)
-            self.wait_fight_end()
+                log.info(_("发现敌人!"))
+                time.sleep(2)
+                self.wait_fight_end()
+            break
 
     def wait_fight_end(self, type=0):
         """
@@ -478,6 +464,7 @@ class calculated:
             :param type: 0: 大世界 1:副本
         """
         #进入战斗
+        log.info(_("wait_fight_end"))
         start_time = time.time()
         if self.data["auto_battle_persistence"] != 1:  #这个设置建议放弃,看了看浪费性能加容易出问题
             while True:
@@ -501,16 +488,9 @@ class calculated:
                 if any(substring in end_str for substring in self.end_list):
                     log.info(_("完成自动战斗"))
                     break
-            elif type == 1:
-                end_str = str(self.part_ocr((32, 85, 56, 89)))
-                if self.ocr_click("退出关卡", overtime=0, points=(32, 85, 42, 89)):
-                    log.info(_("完成自动战斗"))
-                    break
-                if self.ocr_click("返回忘却之庭", overtime=0, points=(44, 85, 56, 89)):
-                    log.info(_("完成自动战斗"))
-                    break
+            
             time.sleep(1.0) # 缓冲
-            if time.time() - start_time > 90: # 避免卡死
+            if time.time() - start_time > 300: # 避免卡死
                 log.info(_("战斗超时"))
                 break
             time.sleep(1) # 避免长时间ocr
@@ -788,17 +768,17 @@ class calculated:
             进入地图的时间
         """
         start_time = time.time()
-        join1 = False
+        join1 = True
         join2 = False
         join_time = self.data.get("join_time", {})
-        pc_join = join_time.get("pc", 8)
+        pc_join = join_time.get("pc", 16)
         mnq_join = join_time.get("mnq", 15)
         while True:
             result = self.get_pix_r(pos=(119, 86))
-            log.debug(result)
+            log.info(result)
             endtime = time.time() - start_time
-            if self.compare_lists([0, 0, 0], result) and self.compare_lists(result, [19, 19, 19]):
-                join1 = True
+            # if self.compare_lists([0, 0, 0], result) and self.compare_lists(result, [19, 19, 19]):
+                # join1 = True
             if self.compare_lists([19, 19, 19], result) and join1:
                 join2 = True
             if join1 and join2:

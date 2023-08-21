@@ -1,0 +1,45 @@
+{
+  "real_width": 1920,
+  "auto_battle_persistence": 1,
+  "real_height": 1080,
+  "github_proxy": "",
+  "rawgithub_proxy": "",
+  "webhook_url": "",
+  "start": true,
+  "temp_version": "20230709202859",
+  "star_version": "20230708202615",
+  "open_map": "m",
+  "level": "INFO",
+  "adb": "127.0.0.1:21503",
+  "adb_path": "temp\\adb\\adb",
+  "proxies": "",
+  "map_version": "20230709202859",
+  "scaling": 1.0,
+  "borderless": true,
+  "presets": [
+    [
+      "娜塔莎",
+      "布洛尼亚",
+      "希儿",
+      "火主1",
+      "艾丝妲"
+    ]
+  ],
+  "left_border": 0.0,
+  "up_border": 0.0,
+  "fight_data": {
+    "data": [
+      "map_2-1_1",
+      "map_2-1_2",
+      "map_2-2_1",
+      "map_2-2_2",
+      "map_2-3_1",
+      "map_2-3_2",
+      "map_2-3_3",
+      "map_2-3_4",
+      "map_2-3_5"
+    ],
+    "day_time": "2023-07-11"
+  },
+  "language": "zh_CN"
+}
