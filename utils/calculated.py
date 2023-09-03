@@ -67,8 +67,6 @@ class calculated:
         self.finish = cv.imread("./temp/pc/finish_fighting.jpg")
         self.auto = cv.imread("./temp/pc/auto.jpg")
 
-        self.end_list = ["Tab", _("轮盘"), _("唤起鼠标"), _("手机"), _("退出")]
-
     def Click(self, points = None):
         """
         说明：
@@ -441,11 +439,11 @@ class calculated:
                     self.Click()
                     time.sleep(1.5)
                     log.info(_("识别反击"))
-                result = self.scan_screenshot(self.finish,pos=(0,95,100,100))
+                result = self.scan_screenshot(self.finish,pos=(0,70,100,100))
                 if result["max_val"] < 0.95:
                     break
                 time.sleep(0.1)
-            result = self.scan_screenshot(self.finish,pos=(0,95,100,100))
+            result = self.scan_screenshot(self.finish,pos=(0,70,100,100))
             log.info(_(result["max_val"]))
             time.sleep(0.3)
             if result["max_val"] > 0.95:
@@ -484,8 +482,8 @@ class calculated:
         start_time = time.time()  # 开始计算战斗时间
         while True:
             if type == 0:
-                end_str = str(self.part_ocr((20,95,100,100)))
-                if any(substring in end_str for substring in self.end_list):
+                result = self.scan_screenshot(self.finish,pos=(0,70,100,100))
+                if result["max_val"] >= 0.95:
                     log.info(_("完成自动战斗"))
                     break
             
@@ -833,8 +831,8 @@ class calculated:
         log.info(_("等待入画结束"))
         time.sleep(0.3) # 缓冲
         while True:
-            end_str = str(self.part_ocr((0,95,100,100)))
-            if any(substring in end_str for substring in self.end_list):
+            result = self.scan_screenshot(self.finish,pos=(0,70,100,100))
+            if result["max_val"] >= 0.95:
                 log.info(_("完成入画"))
                 break
             time.sleep(1.0) # 缓冲
